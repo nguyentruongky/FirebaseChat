@@ -7,3 +7,21 @@ The greatest thing I learnt from Brian is he just uses Auto layout programmatica
 
 [Ep1](https://www.youtube.com/watch?v=lWSc0wHFTXM&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=1):  Build the login controller with Constraint Anchors. You can take a lot at my Youtube clone (followed another tutorial) to see my notes. There are some useful note here. Something is extend UIColor init, start app programmatically. 
 
+[Ep2](https://www.youtube.com/watch?v=guFW9aj4EHM&index=2&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq): Create app in Firebase console. Connect the project with the Firebase via SDK installed by Cocodpod. First data added to Firebase databse.
+
+Create registered user to Firebase Authentication. 
+
+	FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
+		// do your job here. 
+	}
+	
+Save user information to Firebase Database. Firebase Database is a NoSQL, it uses node instead of table. 
+
+	let ref = FIRDatabase.database().reference(fromURL: "https://your_app_url.firebaseio.com/")
+    let node = ref.child("fatherItem").child("littleChildItem")
+    let dataToSave = [
+        "key": value,
+    ]
+    node.updateChildValues(values, withCompletionBlock: { (error, ref) in
+		// do your job here
+    })

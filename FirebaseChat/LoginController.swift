@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class LoginController: UIViewController {
 
@@ -20,7 +21,7 @@ class LoginController: UIViewController {
         return view
     }()
     
-    let loginRegisterButton: UIButton = {
+    lazy var loginRegisterButton: UIButton = {
        
         let button = UIButton(type: .system)
         button.backgroundColor = UIColor(r: 80, g: 101, b: 161)
@@ -30,8 +31,42 @@ class LoginController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 5
         button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(handleRegister), for: .touchUpInside)
         return button
     }()
+    
+    func handleRegister() {
+        guard let email = emailTextField.text, let password = passwordTextField.text, let name = nameTextField.text else { return }
+        FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
+            
+            if error != nil {
+                print(error)
+                return
+            }
+            
+            
+            guard let uid = user?.uid else { return }
+            
+            // succcessfully authenticated user
+            let ref = FIRDatabase.database().reference(fromURL: "https://minuteschat.firebaseio.com/")
+            let userReference = ref.child("users").child(uid)
+            let values = [
+                "name": name,
+                "email":email,
+                "password": password
+            ]
+            userReference.updateChildValues(values, withCompletionBlock: { (error, ref) in
+                
+                if error != nil {
+                    print(error)
+                    return
+                }
+                
+                print("Saved user successfully into firebase db")
+            })
+            
+        })
+    }
     
     let nameTextField: UITextField = {
        
