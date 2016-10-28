@@ -25,3 +25,11 @@ Save user information to Firebase Database. Firebase Database is a NoSQL, it use
     node.updateChildValues(values, withCompletionBlock: { (error, ref) in
 		// do your job here
     })
+    
+[Ep3](https://www.youtube.com/watch?v=4rNtIeC_dsQ&index=3&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq): Handle login function. Change the UI to toggle login and register. Login to the registered account with Firebase. 
+
+	FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: { (user, error) in 
+		// do your job here
+	}
+
+*Update later*
