@@ -32,4 +32,13 @@ Save user information to Firebase Database. Firebase Database is a NoSQL, it use
 		// do your job here
 	}
 
+[Ep4](https://www.youtube.com/watch?v=qD582zfXlgo&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=4): Fetch all users from Firebase. 
+
+The observe type .childAdded will create a connection to Firebase and be called every time new user registered. 
+
+	FIRDatabase.database().reference().child("users").observe(.childAdded, with: { (snapshot) in
+
+		// your job goes here 
+	}
+
 *Update later*

@@ -74,8 +74,7 @@ class LoginController: UIViewController {
             let userReference = ref.child("users").child(uid)
             let values = [
                 "name": name,
-                "email":email,
-                "password": password
+                "email":email
             ]
             userReference.updateChildValues(values, withCompletionBlock: { (error, ref) in
                 
