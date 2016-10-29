@@ -41,4 +41,37 @@ The observe type .childAdded will create a connection to Firebase and be called 
 		// your job goes here 
 	}
 
+[Ep5](https://www.youtube.com/watch?v=b1vrjt7Nvb0&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=5): Upload user images to Firebase Storage. 
+
+Something Brian didn't mention to, I found it when I worked. 
+
+- Permission to access photo gallery: You will have a crash with no reason, maybe it happens only in Swift 3. Let's add some lines into `Info.plist` file. 
+
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app requires access to the photo library.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>This app requires access to the camera.</string>
+
+- Permission to upload photo to Firebase: By default, Firebase doesn't allow to access to Storage or Database without authentication. You can change that in `Storage\Rule` or `Database\Rule`. It's useful when your app doesn't require register or login. 
+
+Change this 
+
+	allow read, write: if request.auth != null; 
+	
+to this 
+
+	allow read, write: if request.auth == null;
+
+I did some difference with Brian. Move the upload code to a function with a callback instead of upload inside the handler function. 
+
+	uploadProfileImage(name: fileName, completionHandler: { (metadata) in
+		// prepare data to save into databse
+		// save data to databse 
+	}
+
+I use the Firebase user uid instead of generate new one to store to storage. 
+
+	let fileName = uid + ".png"
+
+
 *Update later*
