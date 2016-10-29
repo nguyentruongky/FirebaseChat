@@ -66,7 +66,7 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
         guard let email = emailTextField.text, let password = passwordTextField.text, let name = nameTextField.text else { return }
         FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
             
-            guard self.isSuccess(error: error) else { return }
+            guard isSuccess(error: error) else { return }
             
             guard let uid = user?.uid else { return }
             
@@ -96,7 +96,7 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
         
         storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
             
-            guard self.isSuccess(error: error) else { return }
+            guard isSuccess(error: error) else { return }
             
             completionHandler(metadata!)
             
@@ -109,17 +109,11 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
         
         userReference.updateChildValues(values, withCompletionBlock: { (error, ref) in
             
-            guard self.isSuccess(error: error) else { return }
+            guard isSuccess(error: error) else { return }
             
             self.dismiss(animated: true, completion: nil)
             print("Saved user successfully into firebase db")
         })
-    }
-    
-    func isSuccess(error: Error?) -> Bool {
-        guard error != nil else { return true }
-        print(error)
-        return false
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -135,8 +129,7 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
         
         if let selectedImage = selectedImage {
             profileImageView.image = selectedImage
-            profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
-            profileImageView.layer.masksToBounds = true
+            profileImageView.createCircleView()
         }
         
         dismiss(animated: true, completion: nil)

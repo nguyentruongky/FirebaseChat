@@ -73,5 +73,14 @@ I use the Firebase user uid instead of generate new one to store to storage.
 
 	let fileName = uid + ".png"
 
+[Ep6](https://www.youtube.com/watch?v=GX4mcOOUrWQ&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=6): Load images from Firebase and caching. The image from Firebase Storage has a url, stored to Firebase database. It's easy to download with 3rd lib such as Kingfisher or SDWebImage. They automatically cache the images. In this tutorial, Brian used URLSession to download and cache image manually. 
+
+I learnt this in his building Youtube serial. So that I move code to my own cache class. Check it out at `ImageCaching.swift` file. Easily use with 
+
+	avatarCaching.getImage(with: urlString) { (downloadedImage) in
+		// update your image view
+    }
+
+
 
 *Update later*
