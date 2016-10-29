@@ -102,6 +102,8 @@ class LoginController: UIViewController {
         sc.addTarget(self, action: #selector(handleLoginRegisterChange), for: .valueChanged)
         return sc
     }()
+
+    var loginDelegate: LoginDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -43,6 +43,15 @@ The observe type .childAdded will create a connection to Firebase and be called 
 
 [Ep5](https://www.youtube.com/watch?v=b1vrjt7Nvb0&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=5): Upload user images to Firebase Storage. 
 
+The UIImagePickerController returns some types of images, remember 2 of them: `UIImagePickerControllerEditedImage` and `UIImagePickerControllerOriginalImage`
+
+	if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
+        selectedImage = editedImage
+    }
+    else if let originalImage = info["UIImagePickerControllerOriginalImage"] as? UIImage  {
+        selectedImage = originalImage
+    }
+
 Something Brian didn't mention to, I found it when I worked. 
 
 - Permission to access photo gallery: You will have a crash with no reason, maybe it happens only in Swift 3. Let's add some lines into `Info.plist` file. 
@@ -81,6 +90,10 @@ I learnt this in his building Youtube serial. So that I move code to my own cach
 		// update your image view
     }
 
+[Ep7](https://www.youtube.com/watch?v=69LooiLYjQo&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=7): Use `UIImageJPEGRepresentation` instead of `UIImagePNGRepresentation` to reduce the image quality to upload and download faster. 
 
+	let uploadData = UIImageJPEGRepresentation(image, 0.1)
+
+Update the title bar with user profile image and name. I did differently with Brian, created a protocol and pass data from `LoginController` to `MessageController` instead of pass `MessageController` instance. 
 
 *Update later*

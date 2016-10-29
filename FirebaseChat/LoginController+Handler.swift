@@ -57,7 +57,8 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
                 print(error)
                 return
             }
-            
+
+            self.loginDelegate?.fetchUser()
             self.dismiss(animated: true, completion: nil)
         })
     }
@@ -70,7 +71,7 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
             
             guard let uid = user?.uid else { return }
             
-            let fileName = uid + ".png"
+            let fileName = uid + ".jpg"
             self.uploadProfileImage(name: fileName, completionHandler: { (metadata) in
                 
                 var values: [String: Any] = [
@@ -89,9 +90,8 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
     
     func uploadProfileImage(name: String, completionHandler: @escaping (_ metadata: FIRStorageMetadata) -> Void) {
         
-        guard let image = profileImageView.image else { return }
-        guard let uploadData = UIImagePNGRepresentation(image) else { return }
-        
+        guard let image = profileImageView.image, let uploadData = UIImageJPEGRepresentation(image, 0.1) else { return }
+
         let storageRef = FIRStorage.storage().reference().child("profile_images").child(name)
         
         storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
@@ -111,6 +111,7 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
             
             guard isSuccess(error: error) else { return }
             
+            self.loginDelegate?.showTheMessageController(with: values["name"] as? String, image: values["image"] as? String)
             self.dismiss(animated: true, completion: nil)
             print("Saved user successfully into firebase db")
         })
