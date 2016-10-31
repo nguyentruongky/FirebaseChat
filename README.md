@@ -96,4 +96,11 @@ I learnt this in his building Youtube serial. So that I move code to my own cach
 
 Update the title bar with user profile image and name. I did differently with Brian, created a protocol and pass data from `LoginController` to `MessageController` instead of pass `MessageController` instance. 
 
+[Ep8](https://www.youtube.com/watch?v=FDay6ocBlnE): Create chat log controller to show the conversation. Save messages to Firebase database at node `childByAutoId`
+
+	let ref = FIRDatabase.database().reference().child("messages")
+	let childRef = ref.childByAutoId()
+	let values = ["text": inputTextField.text!]
+	childRef.updateChildValues(values)
+
 *Update later*

@@ -22,6 +22,7 @@ class MessageController: UITableViewController {
         super.viewDidLoad()
 
         navigationItem.title = "Loading..."
+        setupBackButton()
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleLogout))
         
@@ -31,9 +32,17 @@ class MessageController: UITableViewController {
     }
     
     func handleNewMessage() {
-        let newMessageController = NewMessageController()
-        let navigationController = UINavigationController(rootViewController: newMessageController)
-        present(navigationController, animated: true, completion: nil)
+        
+        showChatController()
+//        let newMessageController = NewMessageController()
+//        let navigationController = UINavigationController(rootViewController: newMessageController)
+//        present(navigationController, animated: true, completion: nil)
+    }
+    
+    func setupBackButton() {
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
     }
     
     func checkIfUserLogin() {
@@ -86,6 +95,14 @@ class MessageController: UITableViewController {
         
         navigationItem.titleView = titleView
         
+        titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
+        
+    }
+    
+    func showChatController() {
+        
+        let chatLogController = ChatLogController(collectionViewLayout: UICollectionViewFlowLayout())
+        navigationController?.pushViewController(chatLogController, animated: true)
     }
     
     func handleLogout() {
