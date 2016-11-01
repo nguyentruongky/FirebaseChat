@@ -110,4 +110,15 @@ Update the title bar with user profile image and name. I did differently with Br
 		// parse messages data and render to UI
 	})
 
+[Ep10](https://www.youtube.com/watch?v=fyqksNlC8ks): Easy way to group the message as user. Add all messages into a dictionary as the value with the user id is the key. 
+
+	self.messagesDictionary[toId] = message
+
+Convert time interval (double value) to Date and format date to string
+
+	let timestamp = Date(timeIntervalSince1970: seconds)
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "hh:mm:ss a"
+    timeLabel.text = dateFormatter.string(from: timestamp)
+
 *Update later*

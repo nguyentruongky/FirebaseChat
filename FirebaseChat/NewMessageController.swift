@@ -79,43 +79,7 @@ class NewMessageController: UITableViewController {
             self.messageController?.showChatControllerForUser(user: user)
         }
     }
+    
+    
 }
-
-class UserCell: UITableViewCell {
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        let xOffset : CGFloat = 56
-        textLabel?.frame = CGRect(x: xOffset, y: textLabel!.frame.origin.y - 2, width: textLabel!.frame.size.width, height: textLabel!.frame.size.height)
-        
-        detailTextLabel?.frame = CGRect(x: xOffset, y: detailTextLabel!.frame.origin.y + 2, width: detailTextLabel!.frame.size.width, height: detailTextLabel!.frame.size.height)
-    }
-    
-    let profileImageView : UIImageView = {
-    
-        let iv = UIImageView()
-        iv.image = UIImage(named: "chat")
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.layer.cornerRadius = 20
-        iv.layer.masksToBounds = true
-        return iv
-    }()
-    
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
-        
-        addSubview(profileImageView)
-        profileImageView.leftAnchor.constraint(equalTo: leftAnchor, constant: 8).isActive = true
-        profileImageView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        profileImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        profileImageView.heightAnchor.constraint(equalTo: profileImageView.widthAnchor).isActive = true
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
 

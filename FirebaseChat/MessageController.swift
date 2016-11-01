@@ -18,6 +18,10 @@ protocol LoginDelegate {
 
 class MessageController: UITableViewController {
 
+    let cellId = "cellId"
+    
+    var messagesDictionary = [String: Message]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -31,6 +35,8 @@ class MessageController: UITableViewController {
         checkIfUserLogin()
         
         observeMessages()
+        
+        tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
     }
     
     func handleNewMessage() {
@@ -65,7 +71,15 @@ class MessageController: UITableViewController {
             if let dictionary = snapshot.value as? [String: Any] {
                 let message = Message()
                 message.setValuesForKeys(dictionary)
-                self.messages.append(message)
+                
+                if let toId = message.toId {
+                    self.messagesDictionary[toId] = message
+                    self.messages = Array(self.messagesDictionary.values)
+                    self.messages.sort(by: { (message1, message2) -> Bool in
+                        return message1.timestamp!.intValue > message2.timestamp!.intValue
+                    })
+                }
+                
             }
             
             DispatchQueue.main.async {
@@ -80,9 +94,14 @@ class MessageController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cellId")
-        cell.textLabel?.text = messages[indexPath.row].text
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! UserCell
+        let message = messages[indexPath.row]
+        cell.message = message
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 72
     }
     
     func updateTitleBar(with name: String?, image: String?) {
