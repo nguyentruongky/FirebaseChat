@@ -29,14 +29,16 @@ class MessageController: UITableViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(handleNewMessage))
         
         checkIfUserLogin()
+        
+        observeMessages()
     }
     
     func handleNewMessage() {
         
-        showChatController()
-//        let newMessageController = NewMessageController()
-//        let navigationController = UINavigationController(rootViewController: newMessageController)
-//        present(navigationController, animated: true, completion: nil)
+        let newMessageController = NewMessageController()
+        newMessageController.messageController = self
+        let navigationController = UINavigationController(rootViewController: newMessageController)
+        present(navigationController, animated: true, completion: nil)
     }
     
     func setupBackButton() {
@@ -52,6 +54,35 @@ class MessageController: UITableViewController {
         else {
             fetchUser()
         }
+    }
+    
+    var messages = [Message]()
+    
+    func observeMessages() {
+        let ref = FIRDatabase.database().reference().child("messages")
+        ref.observe(.childAdded, with: { snapshot in
+        
+            if let dictionary = snapshot.value as? [String: Any] {
+                let message = Message()
+                message.setValuesForKeys(dictionary)
+                self.messages.append(message)
+            }
+            
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+            
+        })
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return messages.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cellId")
+        cell.textLabel?.text = messages[indexPath.row].text
+        return cell
     }
     
     func updateTitleBar(with name: String?, image: String?) {
@@ -94,14 +125,12 @@ class MessageController: UITableViewController {
         containerView.centerYAnchor.constraint(equalTo: titleView.centerYAnchor).isActive = true
         
         navigationItem.titleView = titleView
-        
-        titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
-        
     }
     
-    func showChatController() {
+    func showChatControllerForUser(user: User) {
         
         let chatLogController = ChatLogController(collectionViewLayout: UICollectionViewFlowLayout())
+        chatLogController.user = user
         navigationController?.pushViewController(chatLogController, animated: true)
     }
     

@@ -102,5 +102,12 @@ Update the title bar with user profile image and name. I did differently with Br
 	let childRef = ref.childByAutoId()
 	let values = ["text": inputTextField.text!]
 	childRef.updateChildValues(values)
+	
+[Ep9](https://www.youtube.com/watch?v=cw0gLZHJOiE): Get all messages from database and show in the tableView. Shouldn't use Xcode autocorrect to finish Firebase function. It's better type closures yourself.
+	
+	let ref = FIRDatabase.database().reference().child("messages")
+	ref.observe(.childAdded, with: { snapshot in
+		// parse messages data and render to UI
+	})
 
 *Update later*
