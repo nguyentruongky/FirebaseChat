@@ -125,4 +125,16 @@ Convert time interval (double value) to Date and format date to string
 
 [Ep12](https://www.youtube.com/watch?v=azFjJZxZP6M&t=2s&index=12&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq#t=1679.170654): Load the user chat to the chat log controller. Filter the user message related to the current user and the selected user. 
 
+[Ep13](https://www.youtube.com/watch?v=yhGw5bR46AQ&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=13): Calculate the text size to make the collection view cell fit to the text. 
+
+	 private func estimateFrameForText(text: String) -> CGRect {
+	    let size = CGSize(width: 200, height: 100)
+	    let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
+	    return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 15)], context: nil)
+	}
+
+Should add some pixels for height padding 
+
+	height = estimateFrameForText(text: text).height + 20
+
 *Update later*
