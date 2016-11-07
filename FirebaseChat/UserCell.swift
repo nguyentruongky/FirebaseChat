@@ -15,20 +15,7 @@ class UserCell: UITableViewCell {
         
         didSet {
         
-            if let toId = message?.toId {
-                let ref = FIRDatabase.database().reference().child("users").child(toId)
-                ref.observe(.value, with: { snapshot in
-                    
-                    guard let dictionary = snapshot.value as? [String: Any] else { return
-                    }
-                    
-                    self.textLabel?.text = dictionary["name"] as? String
-                    if let profileImageUrl = dictionary["image"] as? String {
-                        
-                        self.profileImageView.loadImageUsingCache(profileImageUrl)
-                    }
-                })
-            }
+            setupNameAndAvatar()
             detailTextLabel?.text = message?.text
             
             if let seconds = message?.timestamp?.doubleValue {
@@ -39,6 +26,25 @@ class UserCell: UITableViewCell {
             }
             
         }
+    }
+    
+    private func setupNameAndAvatar() {
+        
+        if let id = message?.chatParnterId() {
+            let ref = FIRDatabase.database().reference().child("users").child(id)
+            ref.observe(.value, with: { snapshot in
+                
+                guard let dictionary = snapshot.value as? [String: Any] else { return
+                }
+                
+                self.textLabel?.text = dictionary["name"] as? String
+                if let profileImageUrl = dictionary["image"] as? String {
+                    
+                    self.profileImageView.loadImageUsingCache(profileImageUrl)
+                }
+            })
+        }
+
     }
     
     let timeLabel : UILabel = {

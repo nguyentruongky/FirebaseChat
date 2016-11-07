@@ -34,8 +34,6 @@ class MessageController: UITableViewController {
         
         checkIfUserLogin()
         
-        observeMessages()
-        
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
     }
     
@@ -63,6 +61,40 @@ class MessageController: UITableViewController {
     }
     
     var messages = [Message]()
+    
+    func observeUserMessages() {
+        
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else { return }
+        
+        let ref = FIRDatabase.database().reference().child("user-messages").child(uid)
+        
+        ref.observe(.childAdded, with: { snapshot in
+        
+            let messageId = snapshot.key
+            let messageref = FIRDatabase.database().reference().child("messages").child(messageId)
+            messageref.observeSingleEvent(of: .value, with: { snapshot in
+                
+                if let dictionary = snapshot.value as? [String: Any] {
+                    let message = Message()
+                    message.setValuesForKeys(dictionary)
+                    
+                    if let toId = message.toId {
+                        self.messagesDictionary[toId] = message
+                        self.messages = Array(self.messagesDictionary.values)
+                        self.messages.sort(by: { (message1, message2) -> Bool in
+                            return message1.timestamp!.intValue > message2.timestamp!.intValue
+                        })
+                    }
+                    
+                }
+                
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+
+            })
+        })
+    }
     
     func observeMessages() {
         let ref = FIRDatabase.database().reference().child("messages")
@@ -104,7 +136,31 @@ class MessageController: UITableViewController {
         return 72
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let message = messages[indexPath.row]
+        guard let chatPartnerId = message.chatParnterId() else { return }
+        
+        let ref = FIRDatabase.database().reference().child("users").child(chatPartnerId)
+        
+        ref.observeSingleEvent(of: .value, with: { snapshot in
+        
+            guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
+            
+            let user = User()
+            user.id = chatPartnerId
+            user.setValuesForKeys(dictionary)
+            self.showChatControllerForUser(user: user)
+        })
+
+    }
+    
     func updateTitleBar(with name: String?, image: String?) {
+        
+        messages.removeAll()
+        messagesDictionary.removeAll()
+        tableView.reloadData()
+        observeUserMessages()
         
         let titleView = UIView()
         titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 40)

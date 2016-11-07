@@ -121,4 +121,8 @@ Convert time interval (double value) to Date and format date to string
     dateFormatter.dateFormat = "hh:mm:ss a"
     timeLabel.text = dateFormatter.string(from: timestamp)
 
+[Ep11](https://www.youtube.com/watch?v=K1AgGLoT54M&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=11&t=863s): create user_messages to to separate others user messages. From there, we can retrieve the messages content for the conversations. 
+
+[Ep12](https://www.youtube.com/watch?v=azFjJZxZP6M&t=2s&index=12&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq#t=1679.170654): Load the user chat to the chat log controller. Filter the user message related to the current user and the selected user. 
+
 *Update later*
