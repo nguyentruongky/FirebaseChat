@@ -160,4 +160,60 @@ Another solution, don't want to create a timer.
 	NSObject.cancelPreviousPerformRequests(withTarget: self)
 	perform(#selector(self.handleReloadTable), with: nil, afterDelay: 1)
 
+[Ep15](https://www.youtube.com/watch?v=ky7YRh01by8): A great tip to show and hide keyboard. 
+
+Override the inputAccessaryView to show the input box you want. 
+
+	override var inputAccessoryView: UIView? {
+	    get {
+	        return inputContainerView
+	    }
+	}
+
+It's still hidden from the screen. Override canBecomeFirstResponder always true 
+
+	override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+Hide keyboard when the collection view scroll down
+
+	collectionView?.keyboardDismissMode = .interactive
+	
+The trandition way to show hide keyboard is NotificationCenter 
+
+	func handleKeyboardWillHide(notification: Notification) {
+        containerViewBottomAnchor?.constant = 0
+        
+        let keyboardDuration = (notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        
+        UIView.animate(withDuration: keyboardDuration, animations: {
+            
+            self.view.layoutIfNeeded()
+        })
+    }
+    
+    func handleKeyboardWillShow(notification: Notification) {
+        
+        let keyboardFrame = (notification.userInfo![UIKeyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+        containerViewBottomAnchor?.constant = -keyboardFrame.height
+        
+        let keyboardDuration = (notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        
+        UIView.animate(withDuration: keyboardDuration, animations: {
+            
+            self.view.layoutIfNeeded()
+        })
+    }
+
+Don't forget register when key view controller didAppear
+
+    NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+    
+    NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+
+And unregister when didDisappear 
+
+	NotificationCenter.default.removeObserver(self)
+	
 *Update later*

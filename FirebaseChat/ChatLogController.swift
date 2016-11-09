@@ -51,13 +51,100 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     override func viewDidLoad() {
         super.viewDidLoad()
      
-        collectionView?.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 58, right: 0)
-        collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
+        collectionView?.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+//        collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
         collectionView?.backgroundColor = UIColor.white
         collectionView?.alwaysBounceVertical = true
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
+        collectionView?.keyboardDismissMode = .interactive
         
-        setupInputComponents()
+//        setupInputComponents()
+//        
+//        setupKeyboardObservers()
+    }
+    
+    lazy var inputContainerView : UIView = {
+        
+        let containerView = UIView()
+        containerView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
+        containerView.backgroundColor = UIColor.white
+        
+        let sendButton = UIButton(type: .system)
+        sendButton.translatesAutoresizingMaskIntoConstraints = false
+        sendButton.setTitle("Send", for: .normal)
+        containerView.addSubview(sendButton)
+        
+        sendButton.rightAnchor.constraint(equalTo: containerView.rightAnchor, constant: 8).isActive = true
+        sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        
+        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
+        
+        containerView.addSubview(self.inputTextField)
+        
+        self.inputTextField.leftAnchor.constraint(equalTo: containerView.leftAnchor, constant: 8).isActive = true
+        self.inputTextField.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        self.inputTextField.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        self.inputTextField.rightAnchor.constraint(equalTo: sendButton.leftAnchor).isActive = true
+        
+        let separator = UIView()
+        separator.backgroundColor = UIColor.lightGray
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(separator)
+        
+        separator.topAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
+        separator.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
+        separator.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
+        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+        
+        return containerView
+    }()
+    
+    override var inputAccessoryView: UIView? {
+        get {
+            return inputContainerView
+        }
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+    func setupKeyboardObservers() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    func handleKeyboardWillHide(notification: Notification) {
+        containerViewBottomAnchor?.constant = 0
+        
+        let keyboardDuration = (notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        
+        UIView.animate(withDuration: keyboardDuration, animations: {
+            
+            self.view.layoutIfNeeded()
+        })
+    }
+    
+    func handleKeyboardWillShow(notification: Notification) {
+        
+        let keyboardFrame = (notification.userInfo![UIKeyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+        containerViewBottomAnchor?.constant = -keyboardFrame.height
+        
+        let keyboardDuration = (notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        
+        UIView.animate(withDuration: keyboardDuration, animations: {
+            
+            self.view.layoutIfNeeded()
+        })
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -113,7 +200,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             height = estimateFrameForText(text: text).height + 20
         }
         
-        return CGSize(width: view.frame.width, height: height)
+        return CGSize(width: UIScreen.main.bounds.width, height: height)
     }
     
     private func estimateFrameForText(text: String) -> CGRect {
@@ -133,6 +220,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         return tf
     }()
     
+    var containerViewBottomAnchor: NSLayoutConstraint?
+    
     func setupInputComponents() {
         
         let containerView = UIView()
@@ -142,7 +231,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         
         containerView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         containerView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        
+        containerViewBottomAnchor = containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        
+        containerViewBottomAnchor?.isActive = true
         containerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         let sendButton = UIButton(type: .system)
