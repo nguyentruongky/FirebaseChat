@@ -136,5 +136,28 @@ Convert time interval (double value) to Date and format date to string
 Should add some pixels for height padding 
 
 	height = estimateFrameForText(text: text).height + 20
+	
+[Ep14](https://www.youtube.com/watch?v=JK7pHuSfLyA&t=490s): Create a gray bubble chat for incoming messages. Show the friend profile in chat messages. 
+
+Turn on and off the constraint to show the bubble view left or right 
+
+	bubbleViewRightAnchor = bubbleView.rightAnchor.constraint(equalTo: rightAnchor, constant: -8)
+	bubbleViewRightAnchor!.isActive = true
+	bubbleViewLeftAnchor = bubbleView.leftAnchor.constraint(equalTo:profileImageView.rightAnchor, constant: 8)
+	
+	// turn on the left constraint, turn off the right constraint
+	cell.bubbleViewLeftAnchor?.isActive = true
+    cell.bubbleViewRightAnchor?.isActive = false
+
+When observe an event from Firebase, the completion is called many times. So that the update UI codes will run a lot. A trick to cancel the previous code and just run the last time called. 
+
+	var timer: Timer?
+	self.timer?.invalidate()
+	self.timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.handleReloadTable), userInfo: nil, repeats: false)
+	
+Another solution, don't want to create a timer. 
+
+	NSObject.cancelPreviousPerformRequests(withTarget: self)
+	perform(#selector(self.handleReloadTable), with: nil, afterDelay: 1)
 
 *Update later*
