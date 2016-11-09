@@ -216,4 +216,8 @@ And unregister when didDisappear
 
 	NotificationCenter.default.removeObserver(self)
 	
+[Ep16](https://www.youtube.com/watch?v=8cN-jZcbTjg): A big trick to structure the Firebase database. The user messages have to arrange to structure user-messages\fromId\toId. So that, we only have to monitor that node, instead of monitor the all user-messages\fromId and filter toId to display. 
+
+A small change in some places in code. Please follow the Ep16. 	
+
 *Update later*
