@@ -45,19 +45,27 @@ class ChatMessageCell : UICollectionViewCell {
         return iv
     }()
     
+    weak var chatLogController : ChatLogController?
+    
     var bubbleWidthAnchor : NSLayoutConstraint?
     var bubbleViewRightAnchor: NSLayoutConstraint?
     var bubbleViewLeftAnchor: NSLayoutConstraint?
     
-    let messageImageView : UIImageView = {
+    lazy var messageImageView : UIImageView = {
         
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.layer.cornerRadius = 5
         iv.layer.masksToBounds = true
         iv.contentMode = .scaleAspectFill
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleZoomTap)))
         return iv
     }()
+    
+    func handleZoomTap() {
+        chatLogController?.performZoomInForImageView(startingImageView: messageImageView)
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)

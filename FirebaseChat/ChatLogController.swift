@@ -49,6 +49,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     func reloadCollectionView() {
         print("Reload collection view")
         collectionView?.reloadData()
+        
+        guard messages.count > 0 else { return }
         let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
         collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
     }
@@ -61,6 +63,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         collectionView?.alwaysBounceVertical = true
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
         collectionView?.keyboardDismissMode = .interactive
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
         setupKeyboardObservers()
     }
@@ -179,16 +185,16 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     func setupKeyboardObservers() {
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+//        
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
     func handleKeyboardDidShow(notification: Notification) {
         
-        guard messages.count > 0 else { return }
-        let indexPath = IndexPath(item: messages.count - 1, section: 0)
-        collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
+//        guard messages.count > 0 else { return }
+//        let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
+//        collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -236,6 +242,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let message = messages[indexPath.row]
         cell.textView.text = message.text
         
+        cell.chatLogController = self
+        
         setupCell(cell: cell, message: message)
         
         if let text = message.text {
@@ -260,10 +268,12 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.messageImageView.loadImageUsingCache(messageImageUrl)
             cell.messageImageView.isHidden = false
             cell.bubbleView.backgroundColor = UIColor.white
+            cell.textView.isHidden = true
         }
         else {
             cell.bubbleView.backgroundColor = ChatMessageCell.blue
             cell.messageImageView.isHidden = true
+            cell.textView.isHidden = false 
         }
         
         if message.fromId == FIRAuth.auth()?.currentUser?.uid {
@@ -373,11 +383,62 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         handleSend()
         return true
     }
+    
+    var startFrame : CGRect?
+    var blackBackgroundView : UIView?
+    var zoomingImageView : UIImageView?
+    func performZoomInForImageView(startingImageView: UIImageView) {
+        
+        guard let startingFrame = startingImageView.superview?.convert(startingImageView.frame, to: nil) else { return }
+        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+        
+        self.startFrame = startingFrame
+        
+        zoomingImageView = UIImageView(frame: startingFrame)
+        guard let zoomingImageView = zoomingImageView else { return }
+        zoomingImageView.backgroundColor = UIColor.red
+        
+        zoomingImageView.image = startingImageView.image
+        zoomingImageView.contentMode = .scaleAspectFit
+        blackBackgroundView = UIView(frame: keyWindow.frame)
+        blackBackgroundView!.alpha = 0
+        blackBackgroundView!.backgroundColor = UIColor.black
+        zoomingImageView.backgroundColor = UIColor.black
+//        keyWindow.addSubview(blackBackgroundView!)
+        keyWindow.addSubview(zoomingImageView)
+        
+        let button = UIButton(frame: keyWindow.frame)
+        button.addTarget(self, action: #selector(handleZoomOut), for: .touchUpInside)
+        keyWindow.addSubview(button)
+        
+        UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+            
+            let height = startingFrame.height / startingFrame.width / keyWindow.frame.width
+            
+            zoomingImageView.frame = CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: keyWindow.frame.height)
+            
+            zoomingImageView.center = keyWindow.center
+            
+            self.blackBackgroundView!.alpha = 1
+            self.inputContainerView.alpha = 0
+            
+        }, completion: nil)
+        
+    }
+    
+    func handleZoomOut(sender: UIButton) {
+        
+        UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+        
+            self.zoomingImageView?.frame = self.startFrame!
+            self.blackBackgroundView!.alpha = 0
+            self.inputContainerView.alpha = 1
+            
+        }, completion: { _ in
+            
+            self.blackBackgroundView?.removeFromSuperview()
+            self.zoomingImageView?.removeFromSuperview()
+            sender.removeFromSuperview()
+        })
+    }
 }
-
-
-
-
-
-
-

@@ -230,4 +230,10 @@ A cool thing in the `sendMessageWithProperties` function is
 	
 It's very easy to add new value to the `values` dictionary. Love this way. 
 
+[Ep19](https://www.youtube.com/watch?v=fo3nSRBWfRA): A cool animation to view the image in full screen. Create a fake image view and zoom it in. We have to convert the real image view frame to the frame in the global view. 
+
+	let startingFrame = startingImageView.superview?.convert(startingImageView.frame, to: nil)
+
+Zoom the fake image view to frame `CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: keyWindow.frame.height)`
+
 *Update later*
