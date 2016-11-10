@@ -13,6 +13,7 @@ class ChatMessageCell : UICollectionViewCell {
     let textView : UITextView = {
        
         let tv = UITextView()
+        tv.isEditable = false 
         tv.font = UIFont.systemFont(ofSize: 15)
         tv.textColor = UIColor.white
         tv.backgroundColor = UIColor.clear
@@ -52,7 +53,7 @@ class ChatMessageCell : UICollectionViewCell {
         
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.layer.cornerRadius = 16
+        iv.layer.cornerRadius = 5
         iv.layer.masksToBounds = true
         iv.contentMode = .scaleAspectFill
         return iv

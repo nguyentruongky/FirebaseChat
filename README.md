@@ -222,4 +222,12 @@ A small change in some places in code. Please follow the Ep16.
 
 [Ep17](https://www.youtube.com/watch?v=R07TcmTR3w0&t=15s&index=17&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq): A cool message with image. Select an image to send, upload to Firebase Storage and download to the message chat log. You can see how to upload to Firebase Storage in Ep2 note. 
 
+[Ep18](https://www.youtube.com/watch?v=FqDVKW9Rn_M&t=15s&index=17#t=1705.002882): Add image width and height to database data so that we can easily calculate the image size for the message. 
+
+A cool thing in the `sendMessageWithProperties` function is 
+
+	properties.forEach({ values[$0] = $1 })
+	
+It's very easy to add new value to the `values` dictionary. Love this way. 
+
 *Update later*

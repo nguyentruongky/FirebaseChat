@@ -38,28 +38,31 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 
                 guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
                 
-                let message = Message()
-                message.setValuesForKeys(dictionary)
+                let message = Message(dictionary: dictionary)
                 self.messages.append(message)
-                self.collectionView?.reloadData()
-                
+                NSObject.cancelPreviousPerformRequests(withTarget: self)
+                self.perform(#selector(self.reloadCollectionView), with: nil, afterDelay: 0.2)
             })
         })
+    }
+    
+    func reloadCollectionView() {
+        print("Reload collection view")
+        collectionView?.reloadData()
+        let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
+        collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
      
         collectionView?.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
-//        collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
         collectionView?.backgroundColor = UIColor.white
         collectionView?.alwaysBounceVertical = true
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
         collectionView?.keyboardDismissMode = .interactive
         
-//        setupInputComponents()
-//        
-//        setupKeyboardObservers()
+        setupKeyboardObservers()
     }
     
     lazy var inputContainerView : UIView = {
@@ -157,41 +160,9 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 
                 if let imageUrl = metadata?.downloadURL()?.absoluteString {
                     
-                    self.sendImageMessageWithImageUrl(imageUrl: imageUrl)
+                    self.sendImageMessageWithImageUrl(imageUrl: imageUrl, image: selectedImage)
                 }
             })
-        }
-    }
-    
-    func sendImageMessageWithImageUrl(imageUrl: String) {
-        let ref = FIRDatabase.database().reference().child("messages")
-        let childRef = ref.childByAutoId()
-        let toId = user!.id!
-        let fromId = FIRAuth.auth()!.currentUser!.uid
-        let timestamp = NSDate().timeIntervalSince1970 as NSNumber
-        let values: [String: Any] = [
-            "imageUrl": imageUrl,
-            "text": inputTextField.text!,
-            "toId": toId,
-            "fromId": fromId,
-            "timestamp": timestamp
-        ]
-        
-        childRef.updateChildValues(values) { (error, ref) in
-            if error != nil {
-                return
-            }
-            
-            self.inputTextField.text = ""
-            
-            let messageId = childRef.key
-            let values = [messageId: 1]
-            
-            let userMessagesRef = FIRDatabase.database().reference().child("user-messages").child(fromId).child(toId)
-            userMessagesRef.updateChildValues(values)
-            
-            let recipientUserMessageRef = FIRDatabase.database().reference().child("user-messages").child(toId).child(fromId)
-            recipientUserMessageRef.updateChildValues(values)
         }
     }
     
@@ -207,9 +178,17 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func setupKeyboardObservers() {
         
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    func handleKeyboardDidShow(notification: Notification) {
+        
+        guard messages.count > 0 else { return }
+        let indexPath = IndexPath(item: messages.count - 1, section: 0)
+        collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -260,12 +239,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         setupCell(cell: cell, message: message)
         
         if let text = message.text {
-            if text != "" {
-                cell.bubbleWidthAnchor?.constant = estimateFrameForText(text: text).width + 32
-            }
-            else {
-                cell.bubbleWidthAnchor?.constant = 200
-            }
+            cell.bubbleWidthAnchor?.constant = estimateFrameForText(text: text).width + 32
+        }
+        
+        if message.imageUrl != nil {
+            cell.bubbleWidthAnchor?.constant = 200
         }
         
         return cell
@@ -281,9 +259,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             
             cell.messageImageView.loadImageUsingCache(messageImageUrl)
             cell.messageImageView.isHidden = false
-            cell.bubbleView.backgroundColor = UIColor.clear
+            cell.bubbleView.backgroundColor = UIColor.white
         }
         else {
+            cell.bubbleView.backgroundColor = ChatMessageCell.blue
             cell.messageImageView.isHidden = true
         }
         
@@ -307,15 +286,17 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         var height: CGFloat = 80
-        
+        let message = messages[indexPath.row]
         // estimate the height 
-        if let text = messages[indexPath.row].text {
-            if text != "" {
-                height = estimateFrameForText(text: text).height + 20
-                return CGSize(width: UIScreen.main.bounds.width, height: height)
-            }
+        if let text = message.text {
+            height = estimateFrameForText(text: text).height + 20
+            return CGSize(width: UIScreen.main.bounds.width, height: height)
         }
         
+        if let height = message.imageHeight, let width = message.imageWidth {
+            let newHeight = 200 / CGFloat(width) * CGFloat(height)
+            return CGSize(width: UIScreen.main.bounds.width, height: CGFloat(newHeight))
+        }
         return CGSize(width: UIScreen.main.bounds.width, height: height)
     }
     
@@ -339,18 +320,36 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     var containerViewBottomAnchor: NSLayoutConstraint?
 
     func handleSend() {
+        let values: [String: Any] = [
+            "text": inputTextField.text!
+        ]
+        sendMessageWithProperties(properties: values)
+    }
+
+    func sendImageMessageWithImageUrl(imageUrl: String, image: UIImage) {
+        
+        let values: [String: Any] = [
+            "imageUrl": imageUrl,
+            "imageWidth": image.size.width,
+            "imageHeight" : image.size.height
+        ]
+        sendMessageWithProperties(properties: values)
+    }
+    
+    private func sendMessageWithProperties(properties: [String: Any]) {
         
         let ref = FIRDatabase.database().reference().child("messages")
         let childRef = ref.childByAutoId()
         let toId = user!.id!
         let fromId = FIRAuth.auth()!.currentUser!.uid
         let timestamp = NSDate().timeIntervalSince1970 as NSNumber
-        let values: [String: Any] = [
-            "text": inputTextField.text!,
+        var values: [String: Any] = [
             "toId": toId,
             "fromId": fromId,
             "timestamp": timestamp
         ]
+        
+        properties.forEach({ values[$0] = $1 })
         
         childRef.updateChildValues(values) { (error, ref) in
             if error != nil {
