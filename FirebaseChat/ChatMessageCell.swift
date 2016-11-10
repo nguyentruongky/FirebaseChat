@@ -48,11 +48,20 @@ class ChatMessageCell : UICollectionViewCell {
     var bubbleViewRightAnchor: NSLayoutConstraint?
     var bubbleViewLeftAnchor: NSLayoutConstraint?
     
+    let messageImageView : UIImageView = {
+        
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.layer.cornerRadius = 16
+        iv.layer.masksToBounds = true
+        iv.contentMode = .scaleAspectFill
+        return iv
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         addSubview(bubbleView)
-        
         addSubview(textView)
         textView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
         textView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 8).isActive = true
@@ -74,6 +83,12 @@ class ChatMessageCell : UICollectionViewCell {
         bubbleView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
         bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: 200)
         bubbleWidthAnchor?.isActive = true
+        
+        bubbleView.addSubview(messageImageView)
+        messageImageView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
+        messageImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        messageImageView.widthAnchor.constraint(equalTo: bubbleView.widthAnchor).isActive = true
+        messageImageView.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
     }
     
     required init?(coder aDecoder: NSCoder) {

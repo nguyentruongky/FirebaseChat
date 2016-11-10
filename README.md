@@ -220,4 +220,6 @@ And unregister when didDisappear
 
 A small change in some places in code. Please follow the Ep16. 	
 
+[Ep17](https://www.youtube.com/watch?v=R07TcmTR3w0&t=15s&index=17&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq): A cool message with image. Select an image to send, upload to Firebase Storage and download to the message chat log. You can see how to upload to Firebase Storage in Ep2 note. 
+
 *Update later*
