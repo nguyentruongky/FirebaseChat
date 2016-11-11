@@ -236,4 +236,56 @@ It's very easy to add new value to the `values` dictionary. Love this way.
 
 Zoom the fake image view to frame `CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: keyWindow.frame.height)`
 
+[Ep20](https://www.youtube.com/watch?v=eRkpdRDYGeM): Select video from the `UIImagePickerController`, upload to Firebase and get the thumbnail to show in chat messsage log. 
+
+Set mediaTypes to enable select video from `UIImagePickerController`. MobileCoreServices have to be imported before. 
+
+	imagePicker.mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String] 
+	
+Get the video URL to upload to Firebase 
+
+	let videoUrl = info[UIImagePickerControllerMediaURL] as? URL
+	let uploadTask = FIRStorage.storage().reference().child("message_movies").child(filename).putFile(url, metadata: nil, completion: { (metadata, error) in
+	
+	// generate thumbnail 
+	// save thumbnail, thumbnail size and uploaded video url to the database
+	
+	}
+	
+	// handle to uploadTask progress. 
+
+Get thumbnail from the local video file. Don't forget import AVFoundation
+
+	private func thumbnailImageForFileUrl(fileUrl: URL) -> UIImage? {
+
+        let asset = AVAsset(url: fileUrl)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        
+        do {
+            let time = CMTime(value: 1, timescale: 60)
+            let thumbnailCGImage = try imageGenerator.copyCGImage(at: time, actualTime: nil)
+            return UIImage(cgImage: thumbnailCGImage)
+        }
+        catch let err {
+            print(err)
+        }
+        
+        return nil
+    }
+  
+Handle upload progress
+
+	uploadTask.observe(.progress, handler: { snapshot in
+        
+        if let completedUnitCount = snapshot.progress?.completedUnitCount {
+                self.navigationItem.title = String(completedUnitCount)
+        }
+        })
+        
+        uploadTask.observe(.success, handler: { snapshot in
+         
+            self.navigationItem.title = self.user?.name
+        })
+
+    
 *Update later*
