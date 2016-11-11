@@ -7,8 +7,11 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ChatMessageCell : UICollectionViewCell {
+    
+    var message: Message?
     
     let textView : UITextView = {
        
@@ -20,6 +23,49 @@ class ChatMessageCell : UICollectionViewCell {
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
+    
+    let activityView : UIActivityIndicatorView = {
+       
+        let aiv = UIActivityIndicatorView(activityIndicatorStyle: .white)
+        aiv.translatesAutoresizingMaskIntoConstraints = false
+        aiv.hidesWhenStopped = true
+        return aiv
+    }()
+    
+    lazy var playButton: UIButton = {
+       
+        let button = UIButton(type: .system)
+        let playImage = UIImage(named: "play_ico")
+        button.setImage(playImage, for: .normal)
+        button.addTarget(self, action: #selector(handlePlay), for: .touchUpInside)
+        button.tintColor = UIColor.white
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    var playerLayer : AVPlayerLayer?
+    var player : AVPlayer?
+    
+    func handlePlay() {
+        
+        guard let videoUrl = message?.videoUrl, let url = URL(string: videoUrl)  else { return }
+        
+        activityView.startAnimating()
+        playButton.isHidden = true
+        player = AVPlayer(url: url)
+        playerLayer = AVPlayerLayer(player: player)
+        playerLayer?.frame = bubbleView.bounds
+        bubbleView.layer.addSublayer(playerLayer!)
+        player?.play()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        player?.pause()
+        playerLayer?.removeFromSuperlayer()
+        activityView.stopAnimating()
+    }
     
     static let blue = UIColor(r: 0, g: 137, b: 249)
     static let lightGray = UIColor(r: 240, g: 240, b: 240)
@@ -98,6 +144,19 @@ class ChatMessageCell : UICollectionViewCell {
         messageImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
         messageImageView.widthAnchor.constraint(equalTo: bubbleView.widthAnchor).isActive = true
         messageImageView.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
+        
+        bubbleView.addSubview(playButton)
+
+        playButton.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        playButton.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
+        playButton.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
+        playButton.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
+        
+        bubbleView.addSubview(activityView)
+        activityView.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor).isActive = true
+        activityView.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor).isActive = true
+//        playButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+//        playButton.heightAnchor.constraint(equalTo: playButton.widthAnchor).isActive = true
     }
     
     required init?(coder aDecoder: NSCoder) {

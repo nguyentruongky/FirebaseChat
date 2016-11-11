@@ -287,5 +287,14 @@ Handle upload progress
             self.navigationItem.title = self.user?.name
         })
 
+[Ep21](https://www.youtube.com/watch?v=4ISMTG-E3Po&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq&index=21): Play the video inside the chat log. 
+	
+	player = AVPlayer(url: url)
+	playerLayer = AVPlayerLayer(player: player)
+	playerLayer?.frame = bubbleView.bounds
+	bubbleView.layer.addSublayer(playerLayer!)
+	player?.play()
+	
+Instead of prevent tap on the video thumbnail, I stretch the button to fit the bubble view size. A little different from Brain. 
     
 *Update later*
