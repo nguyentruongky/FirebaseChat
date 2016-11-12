@@ -295,6 +295,35 @@ Handle upload progress
 	bubbleView.layer.addSublayer(playerLayer!)
 	player?.play()
 	
-Instead of prevent tap on the video thumbnail, I stretch the button to fit the bubble view size. A little different from Brain. 
+Instead of prevent tap on the video thumbnail, I stretch the button to fit the bubble view size. A little different from Brain. k
     
+[Ep22](https://www.youtube.com/watch?v=KkHEEhftUk0&index=22&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq): Remove messages from the message controller. We have to do 2 things.
+
+Remove the mesasge from the message data. 
+
+	override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+     
+	    guard let uid = FIRAuth.auth()?.currentUser?.uid else { return }
+	    
+	    if let chatPartnerid = messages[indexPath.row].chatParnterId() {
+	        FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerid).removeValue(completionBlock: { (error, ref) in
+	            
+	            if error != nil {
+	                print("fail to delete message")
+	            }
+	
+	            self.messagesDictionary.removeValue(forKey: chatPartnerid)
+	            self.attemptReloadTable()
+	        })
+	    }
+    }
+   
+Observe child remove from database so that when the messages are removed, the application updated. 
+
+	ref.observe(.childRemoved, with: { snapshot in
+         
+        self.messagesDictionary.removeValue(forKey: snapshot.key)
+        self.attemptReloadTable()
+    })
+   
 *Update later*
