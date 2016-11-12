@@ -10,6 +10,6 @@ import Foundation
 
 func isSuccess(error: Error?) -> Bool {
     guard error != nil else { return true }
-    print(error)
+    print(error as Any)
     return false
 }

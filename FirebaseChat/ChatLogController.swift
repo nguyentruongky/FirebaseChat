@@ -73,54 +73,12 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         setupKeyboardObservers()
     }
     
-    lazy var inputContainerView : UIView = {
+    lazy var inputContainerView : ChatInputContainerView = {
         
-        let containerView = UIView()
-        containerView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
-        containerView.backgroundColor = UIColor.white
-        
-        let uploadImageView = UIImageView()
-        uploadImageView.image = UIImage(named: "camera")
-        uploadImageView.contentMode = .scaleAspectFit
-        uploadImageView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(uploadImageView)
-        uploadImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleUploadTap)))
-        
-        uploadImageView.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
-        uploadImageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        uploadImageView.widthAnchor.constraint(equalToConstant: 44).isActive = true
-        uploadImageView.heightAnchor.constraint(equalTo: uploadImageView.widthAnchor).isActive = true
-        uploadImageView.isUserInteractionEnabled = true
-        
-        let sendButton = UIButton(type: .system)
-        sendButton.translatesAutoresizingMaskIntoConstraints = false
-        sendButton.setTitle("Send", for: .normal)
-        containerView.addSubview(sendButton)
-        
-        sendButton.rightAnchor.constraint(equalTo: containerView.rightAnchor, constant: 8).isActive = true
-        sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        
-        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
-        
-        containerView.addSubview(self.inputTextField)
-        
-        self.inputTextField.leftAnchor.constraint(equalTo: uploadImageView.rightAnchor, constant: 18).isActive = true
-        self.inputTextField.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        self.inputTextField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        self.inputTextField.rightAnchor.constraint(equalTo: sendButton.leftAnchor).isActive = true
-        
-        let separator = UIView()
-        separator.backgroundColor = UIColor.lightGray
-        separator.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(separator)
-        
-        separator.topAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
-        separator.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
-        separator.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
-        
+        let containerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
+        containerView.chatLogController = self
         return containerView
+        
     }()
     
     func handleUploadTap() {
@@ -261,17 +219,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func setupKeyboardObservers() {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-//        
-//        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-    }
-    
-    func handleKeyboardDidShow(notification: Notification) {
-        
-//        guard messages.count > 0 else { return }
-//        let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
-//        collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -280,28 +228,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         NotificationCenter.default.removeObserver(self)
     }
     
-    func handleKeyboardWillHide(notification: Notification) {
-        containerViewBottomAnchor?.constant = 0
-        
-        let keyboardDuration = (notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-        
-        UIView.animate(withDuration: keyboardDuration, animations: {
-            
-            self.view.layoutIfNeeded()
-        })
-    }
-    
     func handleKeyboardWillShow(notification: Notification) {
+
+        guard messages.count - 1 > 0 else { return }
         
-        let keyboardFrame = (notification.userInfo![UIKeyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        containerViewBottomAnchor?.constant = -keyboardFrame.height
-        
-        let keyboardDuration = (notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-        
-        UIView.animate(withDuration: keyboardDuration, animations: {
-            
-            self.view.layoutIfNeeded()
-        })
+        collectionView?.scrollToItem(at: IndexPath(item: messages.count - 1, section: 0), at: .bottom, animated: true)
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -397,21 +328,13 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 15)], context: nil)
     }
     
-    lazy var inputTextField : UITextField = {
-        
-        let tf = UITextField()
-        tf.delegate = self
-        tf.placeholder = "Your message goes here"
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.autocorrectionType = .no
-        return tf
-    }()
+    
     
     var containerViewBottomAnchor: NSLayoutConstraint?
 
     func handleSend() {
         let values: [String: Any] = [
-            "text": inputTextField.text!
+            "text": inputContainerView.inputTextField.text!
         ]
         sendMessageWithProperties(properties: values)
     }
@@ -446,7 +369,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 return
             }
             
-            self.inputTextField.text = ""
+            self.inputContainerView.inputTextField.text = ""
             
             let messageId = childRef.key
             let values = [messageId: 1]
@@ -457,11 +380,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             let recipientUserMessageRef = FIRDatabase.database().reference().child("user-messages").child(toId).child(fromId)
             recipientUserMessageRef.updateChildValues(values)
         }
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        handleSend()
-        return true
     }
     
     var startFrame : CGRect?
@@ -492,8 +410,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         keyWindow.addSubview(button)
         
         UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-            
-            let height = startingFrame.height / startingFrame.width / keyWindow.frame.width
             
             zoomingImageView.frame = CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: keyWindow.frame.height)
             

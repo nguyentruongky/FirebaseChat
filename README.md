@@ -325,5 +325,11 @@ Observe child remove from database so that when the messages are removed, the ap
         self.messagesDictionary.removeValue(forKey: snapshot.key)
         self.attemptReloadTable()
     })
-   
-*Update later*
+    
+[Ep23](https://www.youtube.com/watch?v=F3snOdQ5Qyo&index=23&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq): Refactor code to move input container view out of the controller. Now we can reuse this view anywhere we want. 
+
+[Ep24](https://www.youtube.com/watch?v=ICEB51UE6sU&index=24&list=PL0dzCUj1L5JEfHqwjBV0XFb9qx9cGXwkq): Convert Swift 2.2 to Swift 3. But my project started with Swift 3. So that, I did nothing here :D 
+
+
+-
+This is the end of the development from Brain. I will be back to finish it later. 

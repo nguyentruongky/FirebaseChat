@@ -53,11 +53,8 @@ extension LoginController : UIImagePickerControllerDelegate, UINavigationControl
         
         FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: { (user, error) in
             
-            if error != nil {
-                print(error)
-                return
-            }
-
+            guard isSuccess(error: error) else { return }
+            
             self.loginDelegate?.fetchUser()
             self.dismiss(animated: true, completion: nil)
         })

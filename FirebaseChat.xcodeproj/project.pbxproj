@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		260E8ADB1DD7565300E5754B /* ChatInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260E8ADA1DD7565300E5754B /* ChatInputContainerView.swift */; };
 		26107FE31DD1300B0042B2BD /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26107FE21DD1300B0042B2BD /* ChatMessageCell.swift */; };
 		265818D81DC2A30A007CA42E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 265818D71DC2A30A007CA42E /* AppDelegate.swift */; };
 		265818DA1DC2A30A007CA42E /* MessageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 265818D91DC2A30A007CA42E /* MessageController.swift */; };
@@ -29,6 +30,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		260E8ADA1DD7565300E5754B /* ChatInputContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatInputContainerView.swift; sourceTree = "<group>"; };
 		26107FE21DD1300B0042B2BD /* ChatMessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatMessageCell.swift; sourceTree = "<group>"; };
 		265818D41DC2A30A007CA42E /* FirebaseChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FirebaseChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		265818D71DC2A30A007CA42E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 			children = (
 				266A06E11DC928E900F5630C /* UserCell.swift */,
 				26107FE21DD1300B0042B2BD /* ChatMessageCell.swift */,
+				260E8ADA1DD7565300E5754B /* ChatInputContainerView.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -304,6 +307,7 @@
 				265818D81DC2A30A007CA42E /* AppDelegate.swift in Sources */,
 				266887B11DC8062600987A6C /* Message.swift in Sources */,
 				26FF66911DC45A960079C3EC /* UIViewExtension.swift in Sources */,
+				260E8ADB1DD7565300E5754B /* ChatInputContainerView.swift in Sources */,
 				26FF668F1DC459690079C3EC /* GlobalHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
