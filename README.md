@@ -236,6 +236,59 @@ It's very easy to add new value to the `values` dictionary. Love this way.
 
 Zoom the fake image view to frame `CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: keyWindow.frame.height)`
 
+Full code here 
+
+	var startFrame : CGRect?
+	var blackBackgroundView : UIView?
+	var zoomingImageView : UIImageView?
+    func performZoomInForImageView(startingImageView: UIImageView) {
+    
+        guard let startingFrame = startingImageView.superview?.convert(startingImageView.frame, to: nil) else { return }
+        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+        
+        self.startFrame = startingFrame
+        
+        zoomingImageView = UIImageView(frame: startingFrame)
+        guard let zoomingImageView = zoomingImageView else { return }
+        zoomingImageView.backgroundColor = UIColor.red
+        
+        zoomingImageView.image = startingImageView.image
+        zoomingImageView.contentMode = .scaleAspectFit
+        blackBackgroundView = UIView(frame: keyWindow.frame)
+        blackBackgroundView!.alpha = 0
+        blackBackgroundView!.backgroundColor = UIColor.black
+        zoomingImageView.backgroundColor = UIColor.black
+        keyWindow.addSubview(zoomingImageView)
+        let button = UIButton(frame: keyWindow.frame)
+        button.addTarget(self, action: #selector(handleZoomOut), for: .touchUpInside)
+        keyWindow.addSubview(button)
+        
+        UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+            
+            zoomingImageView.frame = CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: keyWindow.frame.height)
+            
+            zoomingImageView.center = keyWindow.center
+            
+            self.blackBackgroundView!.alpha = 1
+            
+        }, completion: nil)   
+    }
+    
+    func handleZoomOut(sender: UIButton) {
+        
+        UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+        
+            self.zoomingImageView?.frame = self.startFrame!
+            self.blackBackgroundView!.alpha = 0
+
+        }, completion: { _ in
+            
+            self.blackBackgroundView?.removeFromSuperview()
+            self.zoomingImageView?.removeFromSuperview()
+            sender.removeFromSuperview()
+        })
+    }
+
 [Ep20](https://www.youtube.com/watch?v=eRkpdRDYGeM): Select video from the `UIImagePickerController`, upload to Firebase and get the thumbnail to show in chat messsage log. 
 
 Set mediaTypes to enable select video from `UIImagePickerController`. MobileCoreServices have to be imported before. 
